@@ -1,22 +1,23 @@
 <?php
 
-function test_input($data) {
-  //trims and secures input;
-      
-  $data = trim($data);
-  $data = stripslashes($data);
-  $data = htmlspecialchars($data);
+function test_input($data)
+{
+    //trims and secures input;
 
-  //makes it upper case;
-  $data = strtoupper($data);
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
 
-  return $data;
+    //makes it upper case;
+    $data = strtoupper($data);
+
+    return $data;
 }
 
 $orderID = filter_input(INPUT_POST, "orderID", FILTER_VALIDATE_INT);
 
-if(isset($orderID)){
-$orderID = test_input($orderID);
+if (isset($orderID)) {
+    $orderID = test_input($orderID);
 }
 ?>
 
@@ -37,7 +38,7 @@ $orderID = test_input($orderID);
 <body>
 <center>
  <main>
- 
+
   <header>
     <h1>OrderID: <?php echo $orderID ?></h1>
  </header>
@@ -46,13 +47,12 @@ $orderID = test_input($orderID);
 
 
  <section>
- <?php 
-require("database.php");
-
+ <?php
+require "database.php";
 
 // SHOWING INVOICE FOR SPECIFIC ORDER:
 
-if(isset($orderID)){
+if (isset($orderID)) {
     //getting individual orders
     $query = 'SELECT * FROM orderitems WHERE OrderID=:orderID';
     $statement = $db->prepare($query);
@@ -69,7 +69,6 @@ if(isset($orderID)){
     $totalPrice = $order["TotalAmount"];
     $statement->closeCursor();
 
-    
     echo "<table>
                         <tr>
                             <th>Product</th>
@@ -77,14 +76,13 @@ if(isset($orderID)){
                             <th>Price</th>
                         </tr>";
 
-    foreach($allOrderItems as $orderItem){
+    foreach ($allOrderItems as $orderItem) {
 
-        
-        $product= $orderItem['Name'];
+        $product = $orderItem['Name'];
         $quantity = $orderItem['Quantity'];
-        $price =$orderItem['TotalPrice'];
-        
-        echo          "<tr>          
+        $price = $orderItem['TotalPrice'];
+
+        echo "<tr>
                           <td>$product</td>
                             <td>$quantity</td>
                             <td>$price</td>
@@ -93,11 +91,11 @@ if(isset($orderID)){
     echo "<tr><td colspan='3'> Total Price: $totalPrice </tr><td>";
     echo "</table>";
 
-  } else {
+} else {
     echo "You haven't selected an order: Go back to:";
-  }
+}
 
- ?>
+?>
  </section>
   <br></br>
 

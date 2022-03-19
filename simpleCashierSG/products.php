@@ -1,65 +1,68 @@
+
 <?php
 
-function test_input($data) {
-  //trims and secures input;
-      
-  $data = trim($data);
-  $data = stripslashes($data);
-  $data = htmlspecialchars($data);
+function test_input($data)
+{
+    //trims and secures input;
 
-  //makes it upper case;
-  $data = strtoupper($data);
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
 
-  return $data;
+    //makes it upper case;
+    $data = strtoupper($data);
+
+    return $data;
 }
 
-function productExists($code){
+function productExists($code)
+{
     //products in the database need to be unique. This funciton checks if the product already exists
 
-    require("database.php");
+    require "database.php";
 
     $query = 'SELECT * FROM products';
-        $statement = $db->prepare($query);
-        $statement->execute();
-        $allProducts = $statement->fetchAll();
-        $statement->closeCursor();
-    
-    foreach($allProducts as $product){
+    $statement = $db->prepare($query);
+    $statement->execute();
+    $allProducts = $statement->fetchAll();
+    $statement->closeCursor();
+
+    foreach ($allProducts as $product) {
         $allProductsArray[] = $product['Code'];
     }
-    
-    if(in_array($code, $allProductsArray)){
 
-            return True;
+    if (in_array($code, $allProductsArray)) {
+
+        return true;
     }
 
-    return False;
+    return false;
 
 }
 
+function valid_entries($newcode, $price, $promoprice, $promoquantity)
+{
+    //Used when adding a new product.
+    //check all the entries and makes sure they are valid data, and returns an array
+    // array[0] is a bool - true or false; true if data is valid, false if any of the data is invalid.
+    // array[1] is a string that gives a bit of info on the entered data and what the problem with it is.
 
-function valid_entries($newcode, $price, $promoprice, $promoquantity){
-  //Used when adding a new product.
-  //check all the entries and makes sure they are valid data, and returns an array
-  // array[0] is a bool - true or false; true if data is valid, false if any of the data is invalid.
-  // array[1] is a string that gives a bit of info on the entered data and what the problem with it is.
-
-    if (!ctype_alpha($newcode)){
-      return [false, "You code/product name needs to be a letter from the alphabet."];
-    } elseif (productExists($newcode)){
-      return [false, "The code/product you have entered already exists in the database."];
-    } elseif (strlen($newcode) != 1){
-      return [false, "The code/product you have needs to be only 1 character long."];
-    } elseif (!is_numeric($price) || !is_numeric($promoprice) || !is_numeric($promoquantity)){
-      return [false, "Your Price, PromoPrice and PromoQuantity need to be numbers. "];
+    if (!ctype_alpha($newcode)) {
+        return [false, "You code/product name needs to be a letter from the alphabet."];
+    } elseif (productExists($newcode)) {
+        return [false, "The code/product you have entered already exists in the database."];
+    } elseif (strlen($newcode) != 1) {
+        return [false, "The code/product you have needs to be only 1 character long."];
+    } elseif (!is_numeric($price) || !is_numeric($promoprice) || !is_numeric($promoquantity)) {
+        return [false, "Your Price, PromoPrice and PromoQuantity need to be numbers. "];
     } elseif ($price <= 0) {
-      return [false, "Your price needs to be bigger than 0."];
-    } elseif ($promoprice < 0 || $promoquantity < 0){
-      return [false, "Your PromoPrice and PromoQuantity need to be 0 or a positive number. Enter 0 on both fields if the item does not have a promotion."];
+        return [false, "Your price needs to be bigger than 0."];
+    } elseif ($promoprice < 0 || $promoquantity < 0) {
+        return [false, "Your PromoPrice and PromoQuantity need to be 0 or a positive number. Enter 0 on both fields if the item does not have a promotion."];
     } else {
-      return [true,'Entered data is valid.'];
+        return [true, 'Entered data is valid.'];
     }
-    
+
 }
 
 $newcode = filter_input(INPUT_POST, "newcode", FILTER_SANITIZE_STRING);
@@ -69,21 +72,20 @@ $promoquantity = filter_input(INPUT_POST, "promoquantity", FILTER_SANITIZE_STRIN
 
 $deleteID = filter_input(INPUT_POST, "deleteID", FILTER_VALIDATE_INT);
 
-
 //Adding a new product
 
-if(isset($newcode) && isset($price) && isset($promoprice) && isset($promoquantity)){
+if (isset($newcode) && isset($price) && isset($promoprice) && isset($promoquantity)) {
     $newcode = test_input($newcode);
     $price = test_input($price);
     $promoprice = test_input($promoprice);
     $promoquantity = test_input($promoquantity);
 
     $submitted_data_is_valid = valid_entries($newcode, $price, $promoprice, $promoquantity);
- }
+}
 
- // DELETING A PRODUCT
-if(isset($deleteID)){
-  $deleteID = test_input($deleteID);
+// DELETING A PRODUCT
+if (isset($deleteID)) {
+    $deleteID = test_input($deleteID);
 }
 
 ?>
@@ -105,7 +107,7 @@ if(isset($deleteID)){
 <body>
 <center>
  <main>
- 
+
   <header>
     <h1>All Products</h1>
     <br>
@@ -113,7 +115,7 @@ if(isset($deleteID)){
  </header>
   <section>
         <h2>Insert Product</h2>
-        <p>A product/code name should be an alphabetic character, only 1 letter. Price should be greater than zero. 
+        <p>A product/code name should be an alphabetic character, only 1 letter. Price should be greater than zero.
         PromoCode / PromoPrice should be set to 0 if there are no active promotions. They cannot be set to negative numbers.</p>
         <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method = "POST" >
           <label for="newcode">Code:</label>
@@ -132,34 +134,34 @@ if(isset($deleteID)){
 
 
  <section>
- <?php 
-require("database.php");
+ <?php
+require "database.php";
 
 //ADDING A NEW PRODUCT
 
-if($submitted_data_is_valid[0] === true){
-  $query = "INSERT INTO products
+if ($submitted_data_is_valid[0] === true) {
+    $query = "INSERT INTO products
                           (Code, Price, PromoPrice, PromoQuantity)
                         VALUES
                           (:newcode, :price, :promoprice, :promoquantity)";
-            $statement = $db->prepare($query);
-            $statement->bindValue(':newcode', $newcode);
-            $statement->bindValue(':price', $price);
-            $statement->bindValue(':promoprice', $promoprice);
-            $statement->bindValue(':promoquantity', $promoquantity);
-            $statement->execute();
-            //uncomment below if you're db update doesn't work;
-            //echo var_dump($statement->errorInfo());
-            $statement->closeCursor();
-  
-} else if($submitted_data_is_valid[0] === false) {
-  echo "<FONT COLOR='red'>".$submitted_data_is_valid[1]."</FONT><br><br>";
+    $statement = $db->prepare($query);
+    $statement->bindValue(':newcode', $newcode);
+    $statement->bindValue(':price', $price);
+    $statement->bindValue(':promoprice', $promoprice);
+    $statement->bindValue(':promoquantity', $promoquantity);
+    $statement->execute();
+    //uncomment below if you're db update doesn't work;
+    //echo var_dump($statement->errorInfo());
+    $statement->closeCursor();
+
+} else if ($submitted_data_is_valid[0] === false) {
+    echo "<FONT COLOR='red'>" . $submitted_data_is_valid[1] . "</FONT><br><br>";
 
 }
 
 // DELETING A PRODUCT
 
-if(isset($deleteID)){
+if (isset($deleteID)) {
 
     $query = 'DELETE FROM products
                 WHERE ID= :deleteID';
@@ -179,7 +181,6 @@ $statement->execute();
 $allProducts = $statement->fetchAll();
 $statement->closeCursor();
 
-
 echo "<table>
                     <tr>
                         <th>Code</th>
@@ -187,19 +188,19 @@ echo "<table>
                         <th>PromoPrice</th>
                         <th>PromoQuantity</th>
                         <th>Edit/Delete</th>
-                  
+
                     </tr>";
 
-foreach($allProducts as $product){
+foreach ($allProducts as $product) {
 
     $productCode = $product['Code'];
-    $productPrice= $product['Price'];
-    $productPromoPrice =$product['PromoPrice'];
+    $productPrice = $product['Price'];
+    $productPromoPrice = $product['PromoPrice'];
     $productPromoQuantity = $product['PromoQuantity'];
     $productID = $product['ID'];
     $thisPage = $_SERVER['PHP_SELF'];
-    
-    echo          "<tr>          
+
+    echo "<tr>
                       <td>$productCode</td>
                         <td>$productPrice</td>
                         <td>$productPromoPrice</td>
@@ -216,15 +217,15 @@ foreach($allProducts as $product){
                         </td>
                   </tr>";
 }
- 
-   echo "</table>";
- ?>
+
+echo "</table>";
+?>
  </section>
   <br></br>
 
 
 
-          <a href="/"> New Order</a> - 
+          <a href="/"> New Order</a> -
           <a href="/orders.php">Orders</a>
  </main>
  </center>

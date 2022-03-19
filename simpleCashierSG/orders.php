@@ -14,7 +14,7 @@
 <body>
 <center>
  <main>
- 
+
   <header>
     <h1>All Orders</h1>
  </header>
@@ -23,19 +23,16 @@
 
 
  <section>
- <?php 
-require("database.php");
-
+ <?php
+require "database.php";
 
 // SHOWING ALL ORDERS:
-
 
 $query = 'SELECT * FROM orders';
 $statement = $db->prepare($query);
 $statement->execute();
 $allOrders = $statement->fetchAll();
 $statement->closeCursor();
-
 
 echo "<table>
                     <tr>
@@ -44,16 +41,16 @@ echo "<table>
                         <th>Total</th>
                         <th>Invoice</th>
 
-                  
+
                     </tr>";
 
-foreach($allOrders as $order){
+foreach ($allOrders as $order) {
 
     $orderID = $order['OrderID'];
-    $products= $order['OrderCodes'];
-    $total =$order['TotalAmount'];
-    
-    echo          "<tr>          
+    $products = $order['OrderCodes'];
+    $total = $order['TotalAmount'];
+
+    echo "<tr>
                       <td>$orderID</td>
                         <td>$products</td>
                         <td>$total</td>
@@ -66,9 +63,9 @@ foreach($allOrders as $order){
                         </td>
                   </tr>";
 }
- 
-   echo "</table>";
- ?>
+
+echo "</table>";
+?>
  </section>
   <br></br>
 
